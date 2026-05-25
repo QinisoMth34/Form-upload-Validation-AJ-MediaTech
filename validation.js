@@ -10,6 +10,7 @@ const uploadForm = document.getElementById('uploadForm');
 const videoFileInput = document.getElementById('videoFile');
 const fileLabel = document.getElementById('fileLabel');
 const customerNameInput = document.getElementById('customerName');
+const emailInput = document.getElementById('email');
 const whatsappInput = document.getElementById('whatsappNumber');
 const moodSelect = document.getElementById('mood');
 const submitBtn = document.getElementById('submitBtn');
@@ -19,6 +20,7 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 const errors = {
     file: document.getElementById('fileError'),
     name: document.getElementById('nameError'),
+    email: document.getElementById('emailError'),
     phone: document.getElementById('phoneError'),
     mood: document.getElementById('moodError')
 };
@@ -83,6 +85,15 @@ uploadForm.addEventListener('submit', function(e) {
         isFormValid = false;
     } else if (!validateName(customerNameInput.value)) {
         showError('name', 'Name cannot contain numbers or special characters');
+        isFormValid = false;
+    }
+
+    // Validate email
+    if (!emailInput.value.trim()) {
+        showError('email', 'Please enter your email address');
+        isFormValid = false;
+    } else if (!validateEmail(emailInput.value)) {
+        showError('email', 'Please enter a valid email address');
         isFormValid = false;
     }
 
@@ -259,6 +270,19 @@ function validatePhoneNumber(phone) {
 }
 
 /**
+ * Validate email: standard email format
+ */
+function validateEmail(email) {
+    const trimmed = email.trim();
+    
+    // Standard email validation regex
+    // Matches: something@domain.extension
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    return emailRegex.test(trimmed);
+}
+
+/**
  * Validate name: only letters, spaces, and hyphens allowed
  * No numbers, no special characters
  */
@@ -335,6 +359,7 @@ function getInputByField(field) {
     const inputMap = {
         file: videoFileInput,
         name: customerNameInput,
+        email: emailInput,
         phone: whatsappInput,
         mood: moodSelect
     };
@@ -373,7 +398,7 @@ function hideLoadingOverlay() {
  */
 function handleFormSuccess() {
     // Show success message or redirect
-    alert(`✓ Form submitted successfully!\n\nName: ${customerNameInput.value}\nPhone: ${whatsappInput.value}\nMood: ${moodSelect.options[moodSelect.selectedIndex].text}\nFile: ${videoFileInput.files[0].name}`);
+    alert(`✓ Form submitted successfully!\n\nName: ${customerNameInput.value}\nEmail: ${emailInput.value}\nPhone: ${whatsappInput.value}\nMood: ${moodSelect.options[moodSelect.selectedIndex].text}\nFile: ${videoFileInput.files[0].name}`);
     
     // Reset form
     uploadForm.reset();
@@ -393,6 +418,15 @@ customerNameInput.addEventListener('blur', function() {
     }
 });
 
+// Real-time validation for email
+emailInput.addEventListener('blur', function() {
+    if (this.value.trim() && !validateEmail(this.value)) {
+        showError('email', 'Please enter a valid email address');
+    } else if (this.value.trim()) {
+        clearError('email');
+    }
+});
+
 // Real-time validation for phone
 whatsappInput.addEventListener('blur', function() {
     if (this.value.trim() && !validatePhoneNumber(this.value)) {
@@ -406,6 +440,12 @@ whatsappInput.addEventListener('blur', function() {
 customerNameInput.addEventListener('input', function() {
     if (this.parentElement.classList.contains('error')) {
         clearError('name');
+    }
+});
+
+emailInput.addEventListener('input', function() {
+    if (this.parentElement.classList.contains('error')) {
+        clearError('email');
     }
 });
 
